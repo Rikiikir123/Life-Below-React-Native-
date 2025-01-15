@@ -1,6 +1,6 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
 
 export default function FishScreen() {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -25,68 +25,76 @@ export default function FishScreen() {
 
   const handleScan = () => {
     setIsScanning(true);
+
+    // Simulate a 3-second pause for scanning
     setTimeout(() => {
       setIsScanning(false);
-      setShowImage(true);
+      setShowImage(true); // Show the fish after the scan
     }, 3000); // 3 seconds delay
   };
 
   const handleBack = () => {
-    setShowImage(false);
+    setShowImage(false); // Reset to camera view
   };
 
   return (
     <View style={styles.container}>
       {!showImage ? (
-        isScanning ? (
-          <View style={styles.scanningContainer}>
-            <Text style={styles.scanningText}>Scanning...</Text>
+        <CameraView style={styles.camera} facing={facing}>
+          {/* Camera overlay: Borders */}
+          <View style={[styles.corner, styles.topLeft]} />
+          <View style={[styles.corner, styles.topRight]} />
+          <View style={[styles.corner, styles.bottomLeft]} />
+          <View style={[styles.corner, styles.bottomRight]} />
+
+          <View style={styles.crossContainer}>
+            <View style={styles.horizontalLine} />
+            <View style={styles.verticalLine} />
           </View>
-        ) : (
-          <CameraView style={styles.camera} facing={facing}>
-            {/* Corner Borders */}
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
 
-            <View style={styles.crossContainer}>
-              <View style={styles.horizontalLine} />
-              <View style={styles.verticalLine} />
-            </View>
+          {/* Flip Camera Button */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setFacing(facing === 'back' ? 'front' : 'back')}
+            >
+              <Text style={styles.text}>Flip Camera</Text>
+            </TouchableOpacity>
+          </View>
 
-            {/* Flip Camera Button */}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => setFacing(facing === 'back' ? 'front' : 'back')}
-              >
-                <Text style={styles.text}>Flip Camera</Text>
-              </TouchableOpacity>
-            </View>
+          {/* Scan Button */}
+          <View style={styles.scanButtonContainer}>
+            <TouchableOpacity
+              style={[styles.scanButton, isScanning && styles.disabledButton]} // Add conditional style for disabled state
+              onPress={handleScan}
+              disabled={isScanning} // Disable button while scanning
+            >
+              <Text style={styles.scanButtonText}>Scan</Text>
+            </TouchableOpacity>
+          </View>
 
-            {/* Scan Button */}
-            <View style={styles.scanButtonContainer}>
-              <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
-                <Text style={styles.scanButtonText}>Scan</Text>
-              </TouchableOpacity>
+          {/* Show loading animation while scanning */}
+          {isScanning && (
+            <View style={styles.scanningContainer}>
+              <ActivityIndicator size="large" color="#FFFFFF" />
+              <Text style={styles.scanningText}>Scanning...</Text>
             </View>
-          </CameraView>
-        )
+          )}
+        </CameraView>
       ) : (
         <View style={styles.resultContainer}>
-  <Image
-    source={require('@/assets/images/wrasse.jpg')}
-    style={styles.wrasseImage}
-  />
-  <Text style={styles.fishName}>Green Wrasse (Labrus viridis)</Text>
-  <Text style={styles.fishDetails}>
-    The Green Wrasse is classified as vulnerable by the IUCN due to habitat degradation and overfishing. It is commonly found in seagrass beds and rocky coastal areas of the Mediterranean and the Black Sea. Known for its vibrant green coloration, it plays an important role in maintaining the balance of its ecosystem by feeding on small invertebrates and algae.
-  </Text>
-  <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-    <Text style={styles.backButtonText}>Back</Text>
-  </TouchableOpacity>
-</View>
+          <Image
+            source={require('@/assets/images/wrasse.jpg')}
+            style={styles.wrasseImage}
+          />
+          <Text style={styles.fishName}>Green Wrasse (Labrus viridis)</Text>
+          <Text style={styles.fishDetails}>
+            The Green Wrasse is classified as vulnerable by the IUCN due to habitat degradation and overfishing. It is commonly found in seagrass beds and rocky coastal areas of the Mediterranean and the Black Sea. Known for its vibrant green coloration, it plays an important role in maintaining the balance of its ecosystem by feeding on small invertebrates and algae.
+          </Text>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Text style={styles.backButtonText}>Back</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -205,15 +213,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   scanningContainer: {
-    flex: 1,
+    position: 'absolute',
+    top: 200,
+    left: 0,
+    right: 9,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Slightly transparent overlay
   },
   scanningText: {
     color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
+    marginTop: 10,
   },
   resultContainer: {
     flex: 1,
@@ -253,5 +266,8 @@ const styles = StyleSheet.create({
     top: -140,
     lineHeight: 22,
     textAlign: 'justify',
+  },
+  disabledButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Disabled button style
   },
 });
