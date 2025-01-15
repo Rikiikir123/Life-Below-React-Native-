@@ -54,15 +54,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Map"
+        name="SeaLife Scanner"
         options={{
-          title: 'Map',
+          title: 'SeaLife Scanner',
           tabBarIcon: ({ focused }) => (
             <Image
-              source={require('@/assets/icons/location.png')}
+              source={require('@/assets/icons/sealife.png')}
               style={{
-                width: 27,
-                height: 27,
+                width: 35,
+                height: 35,
                 tintColor: focused
                   ? Colors[colorScheme ?? 'light'].tint
                   : Colors[colorScheme ?? 'light'].tabIconDefault,
@@ -72,12 +72,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Games"
+        name="Map"
         options={{
-          title: 'Games',
+          title: 'Map',
           tabBarIcon: ({ focused }) => (
             <Image
-              source={require('@/assets/icons/plugin.png')}
+              source={require('@/assets/icons/location.png')}
               style={{
                 width: 27,
                 height: 27,
