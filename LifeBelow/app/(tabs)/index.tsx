@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     color: '#333',
+    marginTop: 25,
   },
   newsItem: {
     backgroundColor: '#fff',
@@ -58,4 +59,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
   },
+  
 });
