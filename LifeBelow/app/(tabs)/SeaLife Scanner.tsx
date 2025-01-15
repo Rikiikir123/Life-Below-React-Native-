@@ -1,12 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 
 export default function SeaLifeScannerScreen() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
-  const [isScanning, setIsScanning] = useState(false);
-  const [showResult, setShowResult] = useState(false);
+  const [isScanning, setIsScanning] = useState(false); // To track the scanning state
+  const [randomFish, setRandomFish] = useState<any | null>(null); // To store random fish data
+  const cameraRef = useRef<CameraView | null>(null); // Camera reference
+
+  // Fish data, including the seahorse
+  const fishData = [
+    {
+      name: 'Seahorse (Hippocampus guttulatus)',
+      image: require('@/assets/images/seahorse.png'),
+      details:
+        'Seahorses are small marine fishes known for their unique appearance and swimming style. They inhabit shallow coastal waters and seagrass beds. This species is vulnerable due to habitat loss and pollution.',
+    },
+    {
+      name: 'Adriatic Sturgeon (Acipenser naccarii)',
+      image: require('@/assets/images/adriatic_sturgeon.png'),
+      details:
+        'The Adriatic Sturgeon is critically endangered, known for its large size and distinctive scales. Overfishing, pollution, and habitat loss have drastically reduced its numbers.',
+    },
+    {
+      name: 'European Eel (Anguilla anguilla)',
+      image: require('@/assets/images/european_eel.png'),
+      details:
+        'The European Eel is critically endangered, with its population declining due to overfishing, habitat destruction, and a mysterious loss of juveniles. It migrates to the Sargasso Sea to breed.',
+    },
+    {
+      name: 'Dusky Grouper (Epinephelus marginatus)',
+      image: require('@/assets/images/dusky_grouper.png'),
+      details:
+        'The Dusky Grouper is an endangered species found in the Adriatic and Mediterranean. Slow to reproduce, it is highly vulnerable to overfishing, with conservation efforts focused on marine protected areas.',
+    },
+  ];
 
   if (!permission) {
     return <View />;
@@ -23,38 +52,43 @@ export default function SeaLifeScannerScreen() {
     );
   }
 
-  const handleScan = () => {
-    setIsScanning(true);
-    setTimeout(() => {
-      setIsScanning(false);
-      setShowResult(true);
-    }, 3000); // Simulate a 3-second scan
+  const handleScan = async () => {
+    if (cameraRef.current) {
+      await cameraRef.current.pausePreview(); // Pause the camera preview
+    }
+    setIsScanning(true); // Start scanning, hide buttons, show AR image
+    const randomIndex = Math.floor(Math.random() * fishData.length); // Randomize fish
+    setRandomFish(fishData[randomIndex]); // Set random fish
   };
 
-  const handleBack = () => {
-    setShowResult(false);
+  const handleResumePreview = async () => {
+    if (cameraRef.current) {
+      await cameraRef.current.resumePreview(); // Resume the camera preview
+    }
+    setIsScanning(false); // Stop scanning, show buttons again
+    setRandomFish(null); // Clear selected fish
   };
 
   return (
     <View style={styles.container}>
-      {!showResult ? (
-        isScanning ? (
-          <View style={styles.scanningContainer}>
-            <Text style={styles.scanningText}>Scanning coastal waters...</Text>
-          </View>
-        ) : (
-          <CameraView style={styles.camera} facing={facing}>
-            {/* Camera overlay: Borders and Cross */}
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
-            <View style={styles.crossContainer}>
-              <View style={styles.horizontalLine} />
-              <View style={styles.verticalLine} />
-            </View>
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
+        {/* Camera overlay: Borders */}
+        <View style={[styles.corner, styles.topLeft]} />
+        <View style={[styles.corner, styles.topRight]} />
+        <View style={[styles.corner, styles.bottomLeft]} />
+        <View style={[styles.corner, styles.bottomRight]} />
 
-            {/* Buttons */}
+        {/* Conditionally render crosshair lines based on scanning state */}
+        {!isScanning && (
+          <View style={styles.crossContainer}>
+            <View style={styles.horizontalLine} />
+            <View style={styles.verticalLine} />
+          </View>
+        )}
+
+        {/* Buttons */}
+        {!isScanning && (
+          <>
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={styles.button}
@@ -68,24 +102,26 @@ export default function SeaLifeScannerScreen() {
                 <Text style={styles.scanButtonText}>Scan</Text>
               </TouchableOpacity>
             </View>
-          </CameraView>
-        )
-      ) : (
-        <View style={styles.resultContainer}>
-          {/* Show fish result */}
-          <Image
-            source={require('@/assets/images/seahorse.jpg')} // Replace with your fish image
-            style={styles.fishImage}
-          />
-          <Text style={styles.fishName}>Seahorse (Hippocampus guttulatus)</Text>
-          <Text style={styles.fishDetails}>
-            Seahorses are small marine fishes known for their unique appearance and swimming style. They inhabit shallow coastal waters and seagrass beds. This species is vulnerable due to habitat loss and pollution.
-          </Text>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>Back</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+          </>
+        )}
+
+        {/* Display seahorse or random fish with text bubble */}
+        {isScanning && randomFish && (
+          <View style={styles.fishContainer}>
+            <Image
+              source={randomFish.image} // Show random fish image
+              style={styles.fishImage}
+            />
+            <View style={styles.textBubble}>
+              <Text style={styles.fishName}>{randomFish.name}</Text>
+              <Text style={styles.fishDetails}>{randomFish.details}</Text>
+            </View>
+            <TouchableOpacity style={styles.resumeButton} onPress={handleResumePreview}>
+              <Text style={styles.resumeButtonText}>Scan again</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </CameraView>
     </View>
   );
 }
@@ -170,6 +206,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: 10,
+    right: 5,
     borderRadius: 8,
   },
   text: {
@@ -196,58 +233,53 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  scanningContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000',
-  },
-  scanningText: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  resultContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#5FAAD9',
-  },
-  fishImage: {
-    width: 300,
-    height: 200,
-    marginBottom: 20,
-  },
-  fishName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  fishDetails: {
-    fontSize: 16,
-    color: 'white',
-    marginHorizontal: 20,
-    lineHeight: 22,
-    textAlign: 'justify',
-  },
-  backButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#2477BF',
-    borderRadius: 8,
-  },
-  backButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-  },
   message: {
     textAlign: 'center',
     paddingBottom: 10,
     color: 'white',
     fontSize: 16,
   },
-  
+  fishContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: '30%',
+    left: '20%',
+  },
+  fishImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
+  },
+  textBubble: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+    width: 250,
+    alignItems: 'center',
+  },
+  fishName: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  fishDetails: {
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  resumeButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    right: 120,
+    top: 10,
+    padding: 10,
+    borderRadius: 8,
+  },
+  resumeButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+  },
 });
