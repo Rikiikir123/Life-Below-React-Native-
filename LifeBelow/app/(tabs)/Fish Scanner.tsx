@@ -1,12 +1,15 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
 
 export default function FishScreen() {
+  
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [isScanning, setIsScanning] = useState(false);
   const [showImage, setShowImage] = useState(false);
+
+
 
   if (!permission) {
     return <View />;
@@ -37,6 +40,7 @@ export default function FishScreen() {
     setShowImage(false); // Reset to camera view
   };
 
+  
   return (
     <View style={styles.container}>
       {!showImage ? (
@@ -213,14 +217,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   scanningContainer: {
-    position: 'absolute',
-    top: 200,
-    left: 0,
-    right: 9,
-    bottom: 0,
+    ...StyleSheet.absoluteFillObject, // Ensures full-screen coverage
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Slightly transparent overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Slightly transparent overlay
   },
   scanningText: {
     color: 'white',
