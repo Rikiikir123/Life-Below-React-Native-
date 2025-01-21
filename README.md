@@ -5,7 +5,7 @@ HOW TO RUN
 2. Download and extract the repository to a location you know
 3. Open windows powershell (or terminal if on linux)
 4. With the cd command enter the repository LifeBelow
-5. (if you dont have node js installed go to the website and install the LTS latest version, you can check your nodeJS version using the command node -v)
+5. (if you dont have node js installed go to the website and install the LTS latest version, you can check your nodeJS version using the command node -v so that you have AT LEAST 18.18 version of nodejs)
 6. now run npm install -g expo-cli (if this doesnt work, run powershell as administrator and run this command: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser)
 7. now run npm install (to download the project's dependencies)
 8. now run npx expo install expo-location
