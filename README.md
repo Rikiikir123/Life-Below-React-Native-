@@ -1,4 +1,5 @@
 # Life-Below-React-Native-
+I prefer for you to try this on windows because i havent tested if it works properly on linux
 
 HOW TO RUN
 1. Download the Expo Go on your mobile phone from the app store AND MAKE SURE YOUR MOBILE PHONE AND PC ARE CONNECTED TO THE SAME WIFI
