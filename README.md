@@ -1,5 +1,6 @@
 # Life-Below-React-Native-
 I prefer for you to try this on windows because i havent tested if it works properly on linux
+(also preffered to be run on ios but it also runs on android)
 
 HOW TO RUN
 1. Download the Expo Go on your mobile phone from the app store AND MAKE SURE YOUR MOBILE PHONE AND PC ARE CONNECTED TO THE SAME WIFI
@@ -14,4 +15,5 @@ HOW TO RUN
 10. now run npx expo start to start the app
 11. next open your phone and scan the QR code which pops up in the terminal and it should take you to the application
 12. Enjoy using the prototype!
-    
+
+YOUTUBE VIDEO LINK: https://www.youtube.com/shorts/eXtAeMJTrrs
